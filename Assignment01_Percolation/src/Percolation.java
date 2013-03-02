@@ -43,16 +43,16 @@ public class Percolation {
 		//           |
 		//         i+1,j
 		mGrid[i][j] = 1;
-		if (1 == mGrid[i-1][j]) {
+		if (i-1 >= 0 && 1 == mGrid[i-1][j]) {
 			mUF.union(mN*i+j, mN*(i-1)+j);
 		}
-		if (1 == mGrid[i][j-1]) {
+		if (j-1 >= 0 && 1 == mGrid[i][j-1]) {
 			mUF.union(mN*i+j, mN*i+(j-1));
 		}
-		if (1 == mGrid[i+1][j]) {
+		if (i+1 < mN && 1 == mGrid[i+1][j]) {
 			mUF.union(mN*i+j, mN*(i+1)+j);
 		}
-		if (1 == mGrid[i][j+1]) {
+		if (j+1 < mN && 1 == mGrid[i][j+1]) {
 			mUF.union(mN*i+j, mN*i+(j+1));
 		}
 	}
@@ -70,5 +70,21 @@ public class Percolation {
 	// does the system percolate?
 	public boolean percolates() {
 		return (mUF.connected(mVTop, mVBot));
+	}
+	
+	private void Print() {
+		String str = "-------------------------------------------------------------\n";
+		for (int i = 0; i < mN; i++) {
+			for (int j = 0; j < mN; j++) {
+				if (mGrid[i][j] == 0)
+					str += "X"; // closed
+				else if (mUF.connected(mVTop, mN*i+j))
+					str += "+"; // full
+				else 
+					str += " "; // empty
+			}
+			str += "\n";
+		}
+		System.out.print(str);
 	}
 }
