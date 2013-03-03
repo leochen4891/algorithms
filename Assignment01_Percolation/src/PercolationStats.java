@@ -7,6 +7,9 @@ public class PercolationStats {
 
     // perform T independent computational experiments on an N-by-N grid
     public PercolationStats(int N, int T) {
+        if (N < 1 || T < 1) {
+            throw new IllegalArgumentException("N and T should >= 1");
+        }
         mN = N;
         mT = T;
         mXs = new double[T];
@@ -19,14 +22,25 @@ public class PercolationStats {
             Percolation per = new Percolation(N);
             boolean percolation = false;
             while (cnt < NN && !percolation) {
-                i = StdRandom.uniform(N);
-                j = StdRandom.uniform(N);
-                if (per.isOpen(i, j))
+                i = StdRandom.uniform(1, N+1);
+                j = StdRandom.uniform(1, N+1);
+                while (i <= N) {
+                    if (!per.isOpen(i, j))
+                        break;
+                    j++;
+                    if (j >= N) {
+                        j = 1;
+                        i++;
+                    }
+                }
+
+                if (i > N)
                     continue;
 
                 per.open(i, j);
                 cnt++;
                 percolation = per.percolates();
+                // per.print();j
             }
             assert (percolation);
             mXs[t] = cnt / (double) NN;
@@ -70,7 +84,9 @@ public class PercolationStats {
     // test client, described below
     public static void main(String[] args) {
         int N = 200;
-        int T = 100;
+        int T = 20;
+        //test3();
+        
         PercolationStats stats = new PercolationStats(N, T);
         System.out.print("N = " + N + ", T = " + T + "\n");
         System.out.print("mean   = " + stats.mean() + "\n");
@@ -78,5 +94,22 @@ public class PercolationStats {
         System.out.print("95% CI = " + stats.confidenceLo() + ", "
                 + stats.confidenceHi() + "\n");
     };
+    
+//    static void test3() {
+//        Percolation per = new Percolation(3);
+//        per.print();
+//        per.open(0, 2);
+//        per.print();
+//        per.open(1, 2);
+//        per.print();
+//        per.open(2, 2);
+//        per.print();
+//        per.open(2, 0);
+//        per.print();
+//        per.open(1, 0);
+//        per.print();
+//        per.open(0, 0);
+//        per.print();
+//    }
 
 }

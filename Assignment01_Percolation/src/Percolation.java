@@ -13,9 +13,12 @@ public class Percolation {
     private int mVBot;
     
     private int[][] mGrid;
+    
+    private boolean mPercolation = false;
 
     // create N-by-N grid, with all sites blocked
     public Percolation(int N) {
+        if (N < 1) throw new IllegalArgumentException("N should > 0");
         mN = N;
         mNN = N * N;
 
@@ -39,7 +42,10 @@ public class Percolation {
     }
 
     // open site (row i, column j) if it is not already
-    public void open(int i, int j) {
+    public void open(int i1, int j1) {
+
+        int i = i1 - 1;
+        int j = j1 - 1;
         // open a site means add 4 links
         //         i-1,j
         //           |
@@ -63,32 +69,47 @@ public class Percolation {
 
     // is site (row i, column j) open?
     public boolean isOpen(int i, int j) {
-        return (1 == mGrid[i][j]);
+        return (1 == mGrid[i-1][j-1]);
     }
 
     // is site (row i, column j) full?
     public boolean isFull(int i, int j) {
-        return (mUF.connected(mVTop, mN*i+j));
+        if (i < 1 || j < 1 || i > mN || j > mN)
+            throw new ArrayIndexOutOfBoundsException("i,j > 0, <= N");
+        return (mGrid[i - 1][j - 1] == 1 && mUF.connected(mVTop, mN * (i - 1)
+                + (j - 1)));
     }
 
     // does the system percolate?
     public boolean percolates() {
-        return (mUF.connected(mVTop, mVBot));
+        if (!mPercolation) {
+            // check if 1st and last row has opened site
+            boolean top = false, bot = false;
+            for (int i = 0; i < mN; i++) {
+                if (mGrid[0][i] == 1)
+                    top = true;
+                if (mGrid[mN - 1][i] == 1)
+                    bot = true;
+            }
+            mPercolation = (top && bot && mUF.connected(mVTop, mVBot));
+        }
+        return mPercolation;
     }
+    /*
+    public void print() {
+        String str = "----------------------------------------------------\n";
+        for (int i = 0; i < mN; i++) {
+            for (int j = 0; j < mN; j++) {
+                if (mGrid[i][j] == 0)
+                    str += "X"; // closed
+                else if (mUF.connected(mVTop, mN*i+j))
+                    str += "+"; // full
+                else 
+                    str += " "; // empty
+            }
+            str += "\n";
+        }
+        System.out.print(str);
+    } // */
     
-    //private void print() {
-    //    String str = "----------------------------------------------------\n";
-    //    for (int i = 0; i < mN; i++) {
-    //        for (int j = 0; j < mN; j++) {
-    //            if (mGrid[i][j] == 0)
-    //                str += "X"; // closed
-    //            else if (mUF.connected(mVTop, mN*i+j))
-    //                str += "+"; // full
-    //            else 
-    //                str += " "; // empty
-    //        }
-    //        str += "\n";
-    //    }
-    //    System.out.print(str);
-    //}
 }
