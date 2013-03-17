@@ -1,9 +1,10 @@
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Solver {
     private Board mInitialBoard;
-    private Board mTwinBoard; 
-    
+    private Board mTwinBoard;
+
     private Node mGoal = null;
 
     private boolean mSolutionFound = false;
@@ -17,8 +18,8 @@ public class Solver {
         mInitialBoard = initial;
         mTwinBoard = initial.twin();
 
-        //StdOut.println("init board = \n" + mInitialBoard.toString());
-        //StdOut.println("twin board = \n" + mTwinBoard.toString());
+        // StdOut.println("init board = \n" + mInitialBoard.toString());
+        // StdOut.println("twin board = \n" + mTwinBoard.toString());
 
     }
 
@@ -36,6 +37,7 @@ public class Solver {
     public int moves() {
         if (!mSolutionFound)
             this.solution();
+        
         if (null != mGoal && !mSolutionFoundInTwin) {
             return mGoal.mMovesCnt;
         }
@@ -48,7 +50,7 @@ public class Solver {
         mTwinBoardThread = new SolutionFindThread(mTwinBoard);
 
         mInitialBoardThread.start();
-        // mTwinBoardThread.start();
+        mTwinBoardThread.start();
 
         while (!mSolutionFound) {
             try {
@@ -61,8 +63,9 @@ public class Solver {
 
         assert (mSolutionFound);
 
-        if (null != mGoal)
+        if (isSolvable()) {
             return new Solution(mGoal);
+        }
 
         return null;
     }
@@ -80,10 +83,12 @@ public class Solver {
                 blocks[i][j] = in.readInt();
 
         Board initial = new Board(blocks);
+
         Solver solver = new Solver(initial);
+        
         if (solver.isSolvable()) {
             StdOut.println("Minimum number of moves = " + solver.moves() + "\n");
-            for(Board b: solver.solution()) {
+            for (Board b : solver.solution()) {
                 StdOut.println(b.toString());
             }
         } else {
@@ -92,9 +97,9 @@ public class Solver {
     }
 
     private class Node implements Comparable<Node> {
-        public Board mBoard;
-        public Node mPrevNode;
-        public int mMovesCnt;
+        private Board mBoard;
+        private Node mPrevNode;
+        private int mMovesCnt;
 
         Node(Board board, Node prev) {
             mBoard = board;
@@ -116,7 +121,7 @@ public class Solver {
     }
 
     private class Solution implements Iterable<Board> {
-        Node mGoal;
+        private Node mGoal;
 
         Solution(Node goal) {
             mGoal = goal;
@@ -164,10 +169,12 @@ public class Solver {
     }
 
     private class SolutionFindThread extends Thread {
-        Board mBoard;
+        private Board mBoard;
+        private ArrayList<Board> mSearched;
 
         SolutionFindThread(Board board) {
             mBoard = board;
+            mSearched = new ArrayList<Board>();
         }
 
         @Override
@@ -186,9 +193,17 @@ public class Solver {
                 }
 
                 for (Board b : min.mBoard.neighbors()) {
-                    if (b.equals(min))
-                        continue;
+                    boolean added = false;
+                    for (Board oldb : mSearched) {
+                        if (oldb.equals(b)) {
+                            added = true;
+                            break;
+                        }
+                    }
+                    if (added) continue;
+                    
                     pq.insert(new Node(b, min));
+                    mSearched.add(b);
                 }
             }
         }

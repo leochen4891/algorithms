@@ -1,11 +1,16 @@
 import java.util.Iterator;
 
 public class Board {
-    int[][] mBlocks;
+    private int[][] mBlocks;
 
     // construct a board from an N-by-N array of blocks
     // (where blocks[i][j] = block in row i, column j)
-    public Board(int[][] blocks) {
+    public Board(int[][] blk) {
+        int N = blk[0].length;
+        int[][] blocks = new int[N][N];
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                blocks[i][j] = blk[i][j];
         mBlocks = blocks;
     }
 
@@ -57,7 +62,6 @@ public class Board {
     // a board obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
 
-        Board ret = null;
         // create a new block
         int[][] blocks = copyBlocks();
 
@@ -66,7 +70,7 @@ public class Board {
         for (int y = 0; y < N; y++) {
             boolean prevNotGap = false;
             for (int x = 0; x < N; x++) {
-                if (prevNotGap == true && blocks[y][x] != 0) {
+                if (prevNotGap && blocks[y][x] != 0) {
                     // found!
                     exchange(blocks, y, x, y, x - 1);
                     return new Board(blocks);
@@ -79,8 +83,29 @@ public class Board {
     }
 
     // does this board equal y?
-    public boolean equals(Object y) {
-        return (this.toString().equals(y.toString()));
+    public boolean equals(Object o) {
+        if (null == o)
+            return false;
+
+        try {
+            Board b = (Board) o;
+
+            if (this.manhattan() != b.manhattan())
+                return false;
+        } catch (ClassCastException e) {
+            return this.toString().equals(o.toString());
+        }
+
+        return this.toString().equals(o.toString());
+
+        // for (int i = 0; i < N; i++) {
+        // for (int j = 0; j < N; j++) {
+        // if (mBlocks[i][j] != b.getBlocks()[i][j]) {
+        // return false;
+        // }
+        // }
+        // }
+        // return true;
     }
 
     // all neighboring boards
@@ -137,16 +162,17 @@ public class Board {
 
     // string representation of the board (in the output format specified below)
     public String toString() {
-        String str = "";
         int N = this.dimension();
-        str += N + "\n";
+        StringBuilder str = new StringBuilder();
+        str.append(Integer.toString(N)).append("\n");
         for (int y = 0; y < N; y++) {
             for (int x = 0; x < N; x++) {
-                str += mBlocks[y][x] + " ";
+                str.append(mBlocks[y][x]).append(" ");
             }
-            str += "\n";
+            str.append("\n");
         }
-        return str;
+        
+        return str.toString();
     }
 
     private static void exchange(int[][] blocks, int y1, int x1, int y2, int x2) {
@@ -165,8 +191,8 @@ public class Board {
     }
 
     private class Itr implements Iterator<Board>, Iterable<Board> {
-        Board[] mBoards;
-        int mNext;
+        private Board[] mBoards;
+        private int mNext;
 
         Itr(Board[] boards) {
             mBoards = boards;
