@@ -56,7 +56,6 @@ public class Solver {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -86,6 +85,7 @@ public class Solver {
 
         Solver solver = new Solver(initial);
         
+        long start = System.currentTimeMillis();
         if (solver.isSolvable()) {
             StdOut.println("Minimum number of moves = " + solver.moves() + "\n");
             for (Board b : solver.solution()) {
@@ -94,6 +94,8 @@ public class Solver {
         } else {
             StdOut.println("No solution possible");
         }
+        long end = System.currentTimeMillis();
+        StdOut.println("time = " + (end-start));
     }
 
     private class Node implements Comparable<Node> {
@@ -170,6 +172,7 @@ public class Solver {
 
     private class SolutionFindThread extends Thread {
         private Board mBoard;
+        //TODO use faster ST to prevent adding a duplicate board
         private ArrayList<Board> mSearched;
 
         SolutionFindThread(Board board) {

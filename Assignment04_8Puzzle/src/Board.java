@@ -86,26 +86,26 @@ public class Board {
     public boolean equals(Object o) {
         if (null == o)
             return false;
-
+        
         try {
-            Board b = (Board) o;
+        Board b = (Board) o;
+        
+        if (this.dimension() != b.dimension())
+            return false;
 
-            if (this.manhattan() != b.manhattan())
-                return false;
-        } catch (ClassCastException e) {
-            return this.toString().equals(o.toString());
+        int N = b.dimension();
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (mBlocks[i][j] != b.mBlocks[i][j]) {
+                    return false;
+                }
+            }
         }
-
-        return this.toString().equals(o.toString());
-
-        // for (int i = 0; i < N; i++) {
-        // for (int j = 0; j < N; j++) {
-        // if (mBlocks[i][j] != b.getBlocks()[i][j]) {
-        // return false;
-        // }
-        // }
-        // }
-        // return true;
+        } catch (ClassCastException e) {
+            return false;
+        }
+        
+        return true;
     }
 
     // all neighboring boards
